@@ -10,15 +10,23 @@ namespace ConnectToHotspot
     public partial class Hotspot : Form
     {
 
-        // start process
-        Process p1 = new Process();
-        // stop process
-        Process p2 = new Process();
-        
+        private void Start()
+        {
+            // start process
+            Process p1 = new Process();
+            p1.StartInfo.FileName = "netsh.exe";
+            p1.StartInfo.Arguments = "wlan start hostednetwork";
+            p1.StartInfo.UseShellExecute = false;
+            p1.StartInfo.RedirectStandardOutput = true;
+            p1.StartInfo.CreateNoWindow = true;
+            p1.Start();
+        }
 
-        // stop hotspot
+
         private void Stop()
         {
+            // stop process
+            Process p2 = new Process();
             p2.StartInfo.FileName = "netsh.exe";
             p2.StartInfo.Arguments = "wlan stop hostednetwork";
             p2.StartInfo.UseShellExecute = false;
@@ -28,7 +36,7 @@ namespace ConnectToHotspot
 
 
         }
-
+        // checks for no of clients
         private void clients()
         {
             Process p3 = new Process();
@@ -36,7 +44,6 @@ namespace ConnectToHotspot
 
             if (startButton.Text == "STOP" && startButton.Enabled == true)
             {
-                //string outputStatus = p3.StandardOutput.ReadToEnd();/
                 clientsLabel.Text = outputStatus.Split('\n')[15][29].ToString();
                 label5.Visible = true;
             }
@@ -119,18 +126,6 @@ namespace ConnectToHotspot
             Process p4 = new Process();
             password(p4);
 
-            // for user name and password
-            //string outputStatus = p3.StandardOutput.ReadToEnd();
-            //string password_string = p4.StandardOutput.ReadToEnd();
-            //System.IO.File.WriteAllText(@"C:\Users\shanmukh\Desktop\status1.txt", outputStatus);
-            
-            
-
-            //no fo clients
-
-            
-            
-
         }
 
         private void Hotspot_Load(object sender, EventArgs e)
@@ -142,20 +137,11 @@ namespace ConnectToHotspot
         {
             if (startButton.Text == "START")
             {
-
-                p1.StartInfo.FileName = "netsh.exe";
-                p1.StartInfo.Arguments = "wlan start hostednetwork";
-                p1.StartInfo.UseShellExecute = false;
-                p1.StartInfo.RedirectStandardOutput = true;
-                p1.StartInfo.CreateNoWindow = true;
-                p1.Start();
+                Start();
                 startButton.Text = "STOP";
                 statusLabel.Text = "ON";
                 statusLabel.ForeColor = Color.Green;
                 label4.Text = "Hotspot is turned on";
-                //await Task.Delay(4000);
-                //clients();
-
             }
             else
             {
