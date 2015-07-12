@@ -36,7 +36,7 @@ namespace ConnectToHotspot
 
             if (startButton.Text == "STOP" && startButton.Enabled == true)
             {
-                //string outputStatus = p3.StandardOutput.ReadToEnd();
+                //string outputStatus = p3.StandardOutput.ReadToEnd();;;
                 clientsLabel.Text = outputStatus.Split('\n')[15][29].ToString();
                 label5.Visible = true;
             }
