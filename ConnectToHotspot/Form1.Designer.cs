@@ -99,7 +99,7 @@
             this.changeButton.Location = new System.Drawing.Point(121, 298);
             this.changeButton.Name = "changeButton";
             this.changeButton.Size = new System.Drawing.Size(75, 30);
-            this.changeButton.TabIndex = 5;
+            this.changeButton.TabIndex = 9;
             this.changeButton.Text = "UPDATE";
             this.changeButton.UseVisualStyleBackColor = true;
             this.changeButton.Click += new System.EventHandler(this.changeButton_Click);

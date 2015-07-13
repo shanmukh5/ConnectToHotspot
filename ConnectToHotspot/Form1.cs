@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Threading.Tasks;
-//using System.Text.RegularExpressions;
+using System.Security.Principal;
 using System.Windows.Forms;
 
 namespace ConnectToHotspot
 {
     public partial class Hotspot : Form
     {
+        // status process
+        Process p3 = new Process();
 
+        // for password
+        Process p4 = new Process();
+        
         private void Start()
-        {
-            // start process
+        {  
             Process p1 = new Process();
             p1.StartInfo.FileName = "netsh.exe";
             p1.StartInfo.Arguments = "wlan start hostednetwork";
@@ -23,9 +26,9 @@ namespace ConnectToHotspot
         }
 
 
+        // stop process
         private void Stop()
-        {
-            // stop process
+        {    
             Process p2 = new Process();
             p2.StartInfo.FileName = "netsh.exe";
             p2.StartInfo.Arguments = "wlan stop hostednetwork";
@@ -33,25 +36,11 @@ namespace ConnectToHotspot
             p2.StartInfo.RedirectStandardOutput = true;
             p2.StartInfo.CreateNoWindow = true;
             p2.Start();
-
-
         }
-        // checks for no of clients
-        private void clients()
-        {
-            Process p3 = new Process();
-            string outputStatus = status(p3);
 
-            if (startButton.Text == "STOP" && startButton.Enabled == true)
-            {
-                clientsLabel.Text = outputStatus.Split('\n')[15][29].ToString();
-                label5.Visible = true;
-            }
-            
-        }
-        
+
         //sends show hostednetwork command
-        private string status(Process p3)
+        private void status()
         {
             p3.StartInfo.FileName = "netsh.exe";
             p3.StartInfo.Arguments = "wlan show hostednetwork";
@@ -60,13 +49,15 @@ namespace ConnectToHotspot
             p3.StartInfo.CreateNoWindow = true;
             p3.Start();
             string outputStatus = p3.StandardOutput.ReadToEnd();
-            textBox1.Text = outputStatus.Split('"')[1];
+            string user = outputStatus.Split('"')[1];
+            if (textBox1.Text != user)
+            {
+                textBox1.Text = user;
+            }
             
 
-
-
+          
             // Finding the state and updating
-
             if (outputStatus[83] == 'D')
             {
                 changeButton.Text = "CREATE";
@@ -74,6 +65,8 @@ namespace ConnectToHotspot
                 statusLabel.ForeColor = Color.Blue;
                 startButton.Enabled = false;
                 label4.Text = "Create Hotspot by filling Username and Password";
+                label5.Visible = false;
+                clientsLabel.Text = "";
             }
             else
             {
@@ -83,6 +76,8 @@ namespace ConnectToHotspot
                     statusLabel.Text = "OFF";
                     statusLabel.ForeColor = Color.Red;
                     label4.Text = "Hotspot is turned off";
+                    label5.Visible = false;
+                    clientsLabel.Text = "";
                 }
 
                 else
@@ -96,11 +91,13 @@ namespace ConnectToHotspot
                 }
             }
 
-            return (outputStatus);
+            //call password()
+            password();
         }
-
+        
+        
         // checking for password
-        private void password(Process p4)
+        private void password()
         {
             p4.StartInfo.FileName = "netsh.exe";
             p4.StartInfo.Arguments = "wlan show hostednetwork setting=security";
@@ -113,24 +110,22 @@ namespace ConnectToHotspot
         }
         
            
-        //PasswordUtility
-
+        // MAIN PROGRAM
         public Hotspot()
         {
             InitializeComponent();
-            // checking initial status
-            Process p3 = new Process();
-            status(p3);
             
-            // checking password
-            Process p4 = new Process();
-            password(p4);
-
+            // checking initial status and updating accordingly
+            status();
         }
 
         private void Hotspot_Load(object sender, EventArgs e)
         {
-
+             /*if (!IsAdmin())
+             {
+                 this.RestartElevated();
+             }*/
+            
         }
 
         private void startButton_Click(object sender, EventArgs e)
@@ -145,7 +140,6 @@ namespace ConnectToHotspot
             }
             else
             {
-
                 Stop();
                 startButton.Text = "START";
                 statusLabel.Text = "OFF";
@@ -157,8 +151,7 @@ namespace ConnectToHotspot
         }
 
         private void changeButton_Click(object sender, EventArgs e)
-        {
-     
+        {    
             if (textBox2.Text != "" && textBox1.Text != "")
             {
                 if (textBox2.Text.Length < 8)
@@ -171,20 +164,21 @@ namespace ConnectToHotspot
                     {
                         Stop();
                     }
-                    Process p4 = new Process();
-                    p4.StartInfo.FileName = "netsh.exe";
-                    p4.StartInfo.Arguments = "wlan set hostednetwork mode=allow ssid=" + textBox1.Text + " key=" + textBox2.Text;
-                    p4.StartInfo.UseShellExecute = false;
-                    p4.StartInfo.RedirectStandardOutput = true;
-                    p4.StartInfo.CreateNoWindow = true;
-                    p4.Start();
+                    Process p5 = new Process();
+                    p5.StartInfo.FileName = "netsh.exe";
+                    p5.StartInfo.Arguments = "wlan set hostednetwork mode=allow ssid=" + textBox1.Text + " key=" + textBox2.Text;
+                    p5.StartInfo.UseShellExecute = false;
+                    p5.StartInfo.RedirectStandardOutput = true;
+                    p5.StartInfo.CreateNoWindow = true;
+                    p5.Start();
                     startButton.Enabled = true;
                     statusLabel.Text = "OFF";
                     statusLabel.ForeColor = Color.Red;
                     startButton.Text = "START";
                     label4.Text = "Hotspot is created";
                     changeButton.Text = "UPDATE";
-
+                    label5.Visible = false;
+                    clientsLabel.Text = "";
                 }
             }
         }
@@ -205,10 +199,8 @@ namespace ConnectToHotspot
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (startButton.Text == "STOP")
-            {
-                clients();
-            }
+                status(); 
         }
+
     }
 }
