@@ -38,9 +38,25 @@ namespace ConnectToHotspot
             p2.Start();
         }
 
+        // updates username and password
+        private void user_pass()
+        {
+            // updated user name
+            textBox1.Text = show().Split('"')[1];
 
-        //sends show hostednetwork command
-        private void status()
+            // updated password
+            p4.StartInfo.FileName = "netsh.exe";
+            p4.StartInfo.Arguments = "wlan show hostednetwork setting=security";
+            p4.StartInfo.UseShellExecute = false;
+            p4.StartInfo.RedirectStandardOutput = true;
+            p4.StartInfo.CreateNoWindow = true;
+            p4.Start();
+            string password_string = p4.StandardOutput.ReadToEnd();
+            textBox2.Text = password_string.Split('\n')[6].Split(' ')[13].Trim();
+        }
+
+        // show process
+        private string show()
         {
             p3.StartInfo.FileName = "netsh.exe";
             p3.StartInfo.Arguments = "wlan show hostednetwork";
@@ -49,14 +65,14 @@ namespace ConnectToHotspot
             p3.StartInfo.CreateNoWindow = true;
             p3.Start();
             string outputStatus = p3.StandardOutput.ReadToEnd();
-            string user = outputStatus.Split('"')[1];
-            if (textBox1.Text != user)
-            {
-                textBox1.Text = user;
-            }
-            
+            return outputStatus;
+        }
 
-          
+        //sends show hostednetwork command
+        private void status()
+        {
+            string outputStatus = show();
+                     
             // Finding the state and updating
             if (outputStatus[83] == 'D')
             {
@@ -90,26 +106,9 @@ namespace ConnectToHotspot
                     label5.Visible = true;
                 }
             }
+        }
+   
 
-            //call password()
-            password();
-        }
-        
-        
-        // checking for password
-        private void password()
-        {
-            p4.StartInfo.FileName = "netsh.exe";
-            p4.StartInfo.Arguments = "wlan show hostednetwork setting=security";
-            p4.StartInfo.UseShellExecute = false;
-            p4.StartInfo.RedirectStandardOutput = true;
-            p4.StartInfo.CreateNoWindow = true;
-            p4.Start();
-            string password_string = p4.StandardOutput.ReadToEnd();
-            textBox2.Text = password_string.Split('\n')[6].Split(' ')[13].Trim();
-        }
-        
-           
         // MAIN PROGRAM
         public Hotspot()
         {
@@ -117,14 +116,14 @@ namespace ConnectToHotspot
             
             // checking initial status and updating accordingly
             status();
+
+            // Updating user name and password initailly
+            user_pass();
+
         }
 
         private void Hotspot_Load(object sender, EventArgs e)
         {
-             /*if (!IsAdmin())
-             {
-                 this.RestartElevated();
-             }*/
             
         }
 
@@ -134,20 +133,21 @@ namespace ConnectToHotspot
             {
                 Start();
                 startButton.Text = "STOP";
-                statusLabel.Text = "ON";
                 statusLabel.ForeColor = Color.Green;
                 label4.Text = "Hotspot is turned on";
+                statusLabel.Text = "ON";
             }
             else
             {
                 Stop();
                 startButton.Text = "START";
-                statusLabel.Text = "OFF";
                 statusLabel.ForeColor = Color.Red;
                 label4.Text = "Hotspot is turned off";
                 label5.Visible = false;
                 clientsLabel.Text = "";
+                statusLabel.Text = "OFF";
             }
+
         }
 
         private void changeButton_Click(object sender, EventArgs e)
@@ -201,6 +201,5 @@ namespace ConnectToHotspot
         {
                 status(); 
         }
-
     }
 }

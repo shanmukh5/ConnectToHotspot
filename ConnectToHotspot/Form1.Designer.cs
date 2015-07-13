@@ -65,6 +65,7 @@
             this.statusLabel.Size = new System.Drawing.Size(35, 13);
             this.statusLabel.TabIndex = 0;
             this.statusLabel.Text = "label1";
+            //this.statusLabel.TextChanged += new System.EventHandler(this.statusLabel_TextChanged);
             // 
             // label2
             // 
