@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Security.Principal;
 using System.Windows.Forms;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
+using System.Text;
+using System.Collections.ObjectModel;
 
 namespace ConnectToHotspot
 {
@@ -13,7 +16,52 @@ namespace ConnectToHotspot
 
         // for password
         Process p4 = new Process();
-        
+
+        private string RunScript(string scriptText)
+        {
+            // create Powershell runspace
+
+            Runspace runspace = RunspaceFactory.CreateRunspace();
+
+            // open it
+
+            runspace.Open();
+
+            // create a pipeline and feed it the script text
+
+            Pipeline pipeline = runspace.CreatePipeline();
+            pipeline.Commands.AddScript(scriptText);
+
+            // add an extra command to transform the script
+            // output objects into nicely formatted strings
+
+            // remove this line to get the actual objects
+            // that the script returns. For example, the script
+
+            // "Get-Process" returns a collection
+            // of System.Diagnostics.Process instances.
+
+            pipeline.Commands.Add("Out-String");
+
+            // execute the script
+
+            Collection<PSObject> results = pipeline.Invoke();
+
+            // close the runspace
+
+            runspace.Close();
+
+            // convert the script result into a single string
+
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (PSObject obj in results)
+            {
+                stringBuilder.AppendLine(obj.ToString());
+            }
+
+            return stringBuilder.ToString();
+        }
+
         private void Start()
         {  
             Process p1 = new Process();
@@ -83,6 +131,7 @@ namespace ConnectToHotspot
                 label4.Text = "Create Hotspot by filling Username and Password";
                 label5.Visible = false;
                 clientsLabel.Text = "";
+                icsButton.Enabled = false;
             }
             else
             {
@@ -94,6 +143,7 @@ namespace ConnectToHotspot
                     label4.Text = "Hotspot is turned off";
                     label5.Visible = false;
                     clientsLabel.Text = "";
+                    icsButton.Enabled = false;
                 }
 
                 else
@@ -102,6 +152,7 @@ namespace ConnectToHotspot
                     statusLabel.Text = "ON";
                     statusLabel.ForeColor = Color.Green;
                     label4.Text = "Hotspot is turned on";
+                    icsButton.Enabled = true;
                     clientsLabel.Text = outputStatus.Split('\n')[15][29].ToString();
                     label5.Visible = true;
                 }
@@ -136,6 +187,7 @@ namespace ConnectToHotspot
                 statusLabel.ForeColor = Color.Green;
                 label4.Text = "Hotspot is turned on";
                 statusLabel.Text = "ON";
+                icsButton.Enabled = true;
             }
             else
             {
@@ -146,6 +198,7 @@ namespace ConnectToHotspot
                 label5.Visible = false;
                 clientsLabel.Text = "";
                 statusLabel.Text = "OFF";
+                icsButton.Enabled = false;
             }
 
         }
@@ -179,6 +232,7 @@ namespace ConnectToHotspot
                     changeButton.Text = "UPDATE";
                     label5.Visible = false;
                     clientsLabel.Text = "";
+                    icsButton.Enabled = false;
                 }
             }
         }
@@ -199,7 +253,28 @@ namespace ConnectToHotspot
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-                status(); 
+             status(); 
+        }
+
+        private void icsButton_Click(object sender, EventArgs e)
+        {
+            string ics = RunScript(@"
+# Create a NetSharingManager object
+$m = New-Object -ComObject HNetCfg.HNetShare
+
+# Find connection
+$c = $m.EnumEveryConnection |? { $m.NetConnectionProps.Invoke($_).Name -eq '" + netComboBox.Text + @"' }
+
+# Get sharing configuration
+$config = $m.INetSharingConfigurationForINetConnection.Invoke($c)
+
+# See if sharing is enabled
+Write - Output $config.SharingEnabled
+
+# Disable sharing
+$config.EnableSharing(0)
+");
+            System.IO.File.WriteAllText(@"C:\Users\shanmukh\Desktop\a.txt", ics);
         }
     }
 }

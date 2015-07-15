@@ -43,6 +43,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.clientsLabel = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.icsButton = new System.Windows.Forms.Button();
+            this.netComboBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // label4
@@ -65,7 +67,6 @@
             this.statusLabel.Size = new System.Drawing.Size(35, 13);
             this.statusLabel.TabIndex = 0;
             this.statusLabel.Text = "label1";
-            //this.statusLabel.TextChanged += new System.EventHandler(this.statusLabel_TextChanged);
             // 
             // label2
             // 
@@ -87,7 +88,7 @@
             // 
             // startButton
             // 
-            this.startButton.Location = new System.Drawing.Point(110, 99);
+            this.startButton.Location = new System.Drawing.Point(110, 89);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(81, 32);
             this.startButton.TabIndex = 4;
@@ -165,11 +166,36 @@
             this.timer1.Interval = 4000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // icsButton
+            // 
+            this.icsButton.Enabled = false;
+            this.icsButton.Location = new System.Drawing.Point(237, 151);
+            this.icsButton.Name = "icsButton";
+            this.icsButton.Size = new System.Drawing.Size(75, 23);
+            this.icsButton.TabIndex = 13;
+            this.icsButton.Text = "SHARE";
+            this.icsButton.UseVisualStyleBackColor = true;
+            this.icsButton.Click += new System.EventHandler(this.icsButton_Click);
+            // 
+            // netComboBox
+            // 
+            this.netComboBox.FormattingEnabled = true;
+            this.netComboBox.Items.AddRange(new object[] {
+            "Ethernet",
+            "Wi-Fi"});
+            this.netComboBox.Location = new System.Drawing.Point(110, 151);
+            this.netComboBox.Name = "netComboBox";
+            this.netComboBox.Size = new System.Drawing.Size(121, 21);
+            this.netComboBox.TabIndex = 14;
+            this.netComboBox.Text = "Wi-Fi";
+            // 
             // Hotspot
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(331, 357);
+            this.Controls.Add(this.netComboBox);
+            this.Controls.Add(this.icsButton);
             this.Controls.Add(this.clientsLabel);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.passButton);
@@ -207,6 +233,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label clientsLabel;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button icsButton;
+        private System.Windows.Forms.ComboBox netComboBox;
     }
 }
 
